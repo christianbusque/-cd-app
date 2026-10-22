@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installations — CD Repère</title>
+<style>
+:root{
+  --fond:#0E1113; --panneau:#181C1F; --creux:#101315; --bord:#282D31;
+  --texte:#EDEBE6; --sourd:#7C8285; --jaune:#F2A800; --vert:#4CB94C;
+  --orange:#F27A1A; --rouge:#D93A3A; --bleu:#4A8FE0; --or:#E3C46A;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{background:var(--fond);color:var(--texte);font:400 16px/1.4 system-ui,-apple-system,sans-serif;
+  padding:16px;padding-bottom:48px}
+body.tv{font-size:22px}
+.entete{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+h1{font-size:1.15em;font-weight:600;color:var(--or)}
+.sous{color:var(--sourd);font-size:.82em}
+.nav a{color:var(--sourd);font-size:.82em;text-decoration:none;margin-left:12px}
+.nav a.actif{color:var(--jaune)}
+input,select,textarea{width:100%;background:var(--creux);border:2px solid var(--bord);border-radius:8px;
+  color:var(--texte);font:inherit;font-size:16px;padding:11px;outline:none;margin-bottom:10px}
+textarea{min-height:64px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--jaune)}
+label{display:block;font-size:.78em;color:var(--sourd);margin-bottom:4px}
+button{font:500 15px system-ui;color:var(--texte);background:var(--creux);
+  border:2px solid var(--bord);border-radius:8px;padding:12px 14px;cursor:pointer}
+button.plein{width:100%;margin-bottom:8px}
+button.accent{border-color:var(--jaune);color:var(--jaune)}
+button.vert{border-color:var(--vert);color:var(--vert)}
+.barre{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.puce{padding:7px 12px;border-radius:20px;font-size:.8em;border:1.5px solid var(--bord);background:var(--creux);color:var(--sourd);cursor:pointer}
+.puce.actif{border-color:var(--jaune);color:var(--jaune)}
+.section{margin:18px 0 8px;font-size:.78em;letter-spacing:.06em;text-transform:uppercase;color:var(--sourd);
+  display:flex;align-items:center;gap:8px}
+.section .n{background:var(--panneau);border-radius:10px;padding:1px 8px;font-size:.95em}
+.section.alerte{color:#f5a3a3}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px}
+body.tv .grille{grid-template-columns:repeat(auto-fill,minmax(440px,1fr))}
+.carte{background:var(--panneau);border:1px solid var(--bord);border-left:6px solid var(--bord);border-radius:8px;
+  padding:12px 14px;display:flex;gap:12px}
+.carte.cliquable{cursor:pointer}
+.carte.u1{border-left-color:var(--rouge)} .carte.u3{border-left-color:var(--orange)}
+.carte.u7{border-left-color:var(--jaune)} .carte.cours{border-left-color:var(--bleu)}
+.carte.retard{border-left-color:var(--rouge);background:#1f1517}
+.compte{min-width:62px;text-align:center;align-self:center}
+.compte .gros{font-size:1.35em;font-weight:700;line-height:1}
+.compte .petit{font-size:.68em;color:var(--sourd);margin-top:3px}
+.u1 .compte .gros{color:#ff7b7b} .u3 .compte .gros{color:var(--orange)} .u7 .compte .gros{color:var(--jaune)}
+.cours .compte .gros{color:var(--bleu)}
+.corps{flex:1;min-width:0}
+.titre{font-weight:600;font-size:1em}
+.dates{font-size:.86em;color:var(--or);margin:2px 0 4px}
+.detail{font-size:.84em;color:#c9c6bf}
+.meta{font-size:.72em;color:var(--sourd);margin-top:6px}
+.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.68em;margin-right:4px;vertical-align:2px;font-weight:500}
+.t-installation{background:#2a4a2a;color:#bfe6a8} .t-correction{background:#4a2a3a;color:#f0b4cc}
+.t-mesure{background:#2a3a5a;color:#a8c8f5} .t-livraison{background:#4a3f20;color:#f2d68a}
+.s-a_confirmer{border:1px dashed var(--jaune);color:var(--jaune)}
+.s-a_replanifier{border:1px dashed var(--orange);color:var(--orange)}
+.s-fait{background:#1f3a1f;color:#a8e6a8}
+.vide{color:var(--sourd);font-size:.85em;font-style:italic;padding:6px 2px}
+.msg{padding:12px;border-radius:8px;background:var(--creux);border-left:4px solid var(--bord);margin-bottom:12px;font-size:14px}
+.msg.err{border-left-color:var(--rouge);color:#f5a3a3}
+.msg.ok{border-left-color:var(--vert);color:#a8e6a8}
+.hidden{display:none !important}
+.connexion{max-width:420px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:30;
+  align-items:flex-start;justify-content:center;padding:20px 16px;overflow-y:auto}
+.overlay.on{display:flex}
+.boite{background:var(--panneau);border-radius:10px;padding:20px;max-width:480px;width:100%}
+.boite h3{margin-bottom:12px;font-size:17px}
+.choix{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.choix button{padding:10px 6px;font-size:14px}
+.choix button.actif{border-color:var(--jaune);color:var(--jaune);background:#2a2410}
+.duo{display:flex;gap:8px}
+.duo>div{flex:1;min-width:0}
+.histo{margin-top:12px;border-top:1px solid var(--bord);padding-top:10px;font-size:13px;color:var(--sourd)}
+.histo div{margin-bottom:6px}
+.histo b{color:var(--texte);font-weight:500}
+@media (max-width:420px){.grille{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="entete">
+  <div>
+    <h1>Installations</h1>
+    <div class="sous" id="sous-date">CD Repère — Cuisi-Design AB</div>
+  </div>
+  <div class="nav"><a href="/nesting">CD-Nesting</a><a href="/installations" class="actif">Installations</a></div>
+</div>
+
+
+<div id="ecran-cal">
+  <div class="barre" id="filtres">
+    <span class="puce actif" data-f="tous">Tout</span>
+    <span class="puce" data-f="installation">Installations</span>
+    <span class="puce" data-f="correction">Corrections</span>
+    <span class="puce" data-f="mesure">Prises de mesure</span>
+    <span class="puce" data-f="livraison">Livraisons</span>
+  </div>
+  <div class="barre">
+    <button id="btn-modifier">&#128274; Modifier</button>
+    <button class="accent hidden" id="btn-ajouter">+ Ajouter</button>
+    <button id="btn-rafraichir">Rafraîchir</button>
+  </div>
+  <div id="msg-cal"></div>
+  <div id="cal"></div>
+</div>
+
+<div class="overlay" id="overlay-edit">
+  <div class="boite">
+    <h3 id="ed-titre-boite">Modifier</h3>
+    <label>Projet</label>
+    <input id="ed-titre" placeholder="Ex. OMH Granby — rue Saint-Charles, phase 2">
+    <label>Type</label>
+    <div class="choix" id="ed-type">
+      <button data-v="installation">Installation</button>
+      <button data-v="correction">Correction</button>
+      <button data-v="mesure">Prise de mesure</button>
+      <button data-v="livraison">Livraison</button>
+    </div>
+    <div class="duo">
+      <div><label>Début</label><input id="ed-debut" type="date"></div>
+      <div><label>Fin (si plusieurs jours)</label><input id="ed-fin" type="date"></div>
+    </div>
+    <label>Statut</label>
+    <select id="ed-statut">
+      <option value="confirme">Confirmé</option>
+      <option value="a_confirmer">À confirmer</option>
+      <option value="en_cours">En cours</option>
+      <option value="a_replanifier">À replanifier</option>
+      <option value="fait">Fait</option>
+      <option value="annule">Annulé (retirer du calendrier)</option>
+    </select>
+    <label>Équipe</label>
+    <input id="ed-equipe" placeholder="Ex. André, A & R (Alexandre Roy)">
+    <label>Détail</label>
+    <textarea id="ed-detail" placeholder="Logements, locaux, consignes du chantier…"></textarea>
+    <label>Source de la date</label>
+    <input id="ed-source" placeholder="Ex. Courriel de Gilles Nault, 5 oct.">
+    <label>Raison du changement (gardée dans l'historique)</label>
+    <input id="ed-raison" placeholder="Ex. Report demandé par l'entrepreneur">
+    <button class="vert plein" id="ed-sauver">Sauvegarder</button>
+    <button class="plein" id="ed-annuler">Fermer</button>
+    <div class="histo" id="ed-histo"></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+if (params.get('tv') === '1') document.body.classList.add('tv');
+
+function lire(cle){ try{ return localStorage.getItem(cle); }catch(e){ return null; } }
+function ecrire(cle, v){ try{ v === null ? localStorage.removeItem(cle) : localStorage.setItem(cle, v); }catch(e){} }
+
+// Code de modification : gardé seulement pour la session de ce navigateur.
+let codeModif = (function(){ try{ return sessionStorage.getItem('cal_modif') || ''; }catch(e){ return ''; } })();
+let donnees = { evenements: [], peut_modifier: false, aujourdhui: null };
+let filtre = 'tous';
+let enEdition = null;
+let typeChoisi = 'installation';
+
+async function api(chemin, corps){
+  const rep = await fetch(chemin, corps === undefined ? {} : {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) });
+  const texte = await rep.text();
+  let data; try{ data = JSON.parse(texte); }catch(e){ data = texte; }
+  if (!rep.ok) throw new Error((data && data.message) ? data.message : String(data));
+  return data;
+}
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function msg(id, t, type){ $(id).innerHTML = t ? '<div class="msg ' + (type||'') + '">' + esc(t) + '</div>' : ''; }
+
+// ---- dates (tout en jours locaux, sans fuseau) ----
+function jour(s){ if(!s) return null; const [a,m,j] = s.split('-').map(Number); return new Date(a, m-1, j); }
+function ecart(a, b){ return Math.round((a - b) / 86400000); }
+const JOURS = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
+const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+function fmt(d){ return JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()]; }
+// Jours ouvrables (lundi au vendredi) entre aujourd'hui (exclu) et la date (incluse).
+function ouvrables(auj, d){
+  if (d <= auj) return ecart(d, auj);
+  let n = 0; const x = new Date(auj);
+  while (x < d){ x.setDate(x.getDate() + 1); const k = x.getDay(); if (k !== 0 && k !== 6) n++; }
+  return n;
+}
+function lundi(d){ const x = new Date(d); const k = (x.getDay() + 6) % 7; x.setDate(x.getDate() - k); return x; }
+
+function majModeEdition(){
+  const actif = !!codeModif;
+  donnees.peut_modifier = actif;
+  $('btn-ajouter').classList.toggle('hidden', !actif);
+  $('btn-modifier').innerHTML = actif ? 'Terminer la modification' : '&#128274; Modifier';
+  $('btn-modifier').classList.toggle('accent', actif);
+}
+$('btn-modifier').onclick = async () => {
+  if (codeModif){
+    codeModif = ''; try{ sessionStorage.removeItem('cal_modif'); }catch(e){}
+    majModeEdition(); dessiner(); return;
+  }
+  const c = (prompt('Code pour modifier le calendrier :') || '').trim();
+  if (!c) return;
+  try{
+    const r = await api('/api/installations/verifier', { code: c });
+    if (!r.ok){ alert('Code invalide.'); return; }
+    codeModif = c; try{ sessionStorage.setItem('cal_modif', c); }catch(e){}
+    majModeEdition(); dessiner();
+  }catch(e){ alert('Erreur : ' + e.message); }
+};
+
+async function charger(){
+  try{
+    donnees = await api('/api/installations');
+    majModeEdition();
+    msg('msg-cal', '');
+    dessiner();
+  }catch(e){
+    msg('msg-cal', 'Erreur : ' + e.message, 'err');
+  }
+}
+
+function classer(){
+  const auj = jour(donnees.aujourdhui) || new Date(new Date().toDateString());
+  $('sous-date').textContent = 'Aujourd’hui : ' + fmt(auj) + ' · mis à jour à ' +
+    new Date().toLocaleTimeString('fr-CA', {hour:'2-digit', minute:'2-digit'});
+  const lun = lundi(auj);
+  const lunProchain = new Date(lun); lunProchain.setDate(lun.getDate() + 7);
+  const lunApres = new Date(lun); lunApres.setDate(lun.getDate() + 14);
+  const g = { retard: [], cours: [], auj: [], semaine: [], prochaine: [], plusTard: [], sansDate: [], fait: [] };
+  for (const e of donnees.evenements){
+    if (filtre !== 'tous' && e.type !== filtre) continue;
+    const d = jour(e.date_debut), f = jour(e.date_fin) || d;
+    e._j = d ? ouvrables(auj, d) : null;
+    e._jc = d ? ecart(d, auj) : null;
+    if (e.statut === 'fait'){ g.fait.push(e); continue; }
+    if (!d){ g.sansDate.push(e); continue; }
+    if (e.statut === 'en_cours' || (d <= auj && f >= auj && e.statut === 'confirme')){
+      if (d.getTime() === auj.getTime() && e.statut !== 'en_cours') g.auj.push(e); else g.cours.push(e);
+      continue;
+    }
+    if (f < auj){ g.retard.push(e); continue; }
+    if (d.getTime() === auj.getTime() || (d <= auj && f >= auj)){ g.auj.push(e); continue; }
+    if (d < lunProchain) g.semaine.push(e);
+    else if (d < lunApres) g.prochaine.push(e);
+    else g.plusTard.push(e);
+  }
+  return g;
+}
+
+function carte(e){
+  const d = jour(e.date_debut), f = jour(e.date_fin);
+  let cls = '', gros = '—', petit = '';
+  if (e.statut === 'en_cours'){ cls = 'cours'; gros = '●'; petit = 'en cours'; }
+  else if (e.statut === 'fait'){ gros = '✓'; petit = 'fait'; }
+  else if (d){
+    const j = e._j;
+    const fin = f ? ecart(f, jour(donnees.aujourdhui)) : j;
+    if (fin < 0){ cls = 'retard'; gros = '!'; petit = 'passé'; }
+    else if (j <= 0){ cls = 'u1'; gros = j === 0 ? 'AUJ.' : '●'; petit = j === 0 ? '' : 'en cours'; }
+    else {
+      cls = j <= 1 ? 'u1' : j <= 3 ? 'u3' : j <= 7 ? 'u7' : '';
+      gros = e._jc === 1 ? 'DEMAIN' : 'J-' + j;
+      petit = e._jc === 1 ? '' : (j === 1 ? 'jour ouvr.' : 'jours ouvr.');
+    }
+  } else { gros = '?'; petit = 'sans date'; }
+
+  let dates = 'Date à fixer';
+  if (d) dates = f && f.getTime() !== d.getTime() ? fmt(d) + ' → ' + fmt(f) : fmt(d);
+  const nomType = {installation:'Installation', correction:'Correction', mesure:'Prise de mesure', livraison:'Livraison'}[e.type];
+  const nomStatut = {a_confirmer:'À confirmer', a_replanifier:'À replanifier', fait:'Fait'}[e.statut];
+  const meta = [e.equipe ? 'Équipe : ' + esc(e.equipe) : '', e.source ? 'Source : ' + esc(e.source) : '',
+                e.nb_changements > 1 ? (e.nb_changements - 1) + ' changement(s)' : ''].filter(Boolean).join(' · ');
+  return '<div class="carte ' + cls + (donnees.peut_modifier ? ' cliquable' : '') + '" data-id="' + e.id + '">' +
+    '<div class="compte"><div class="gros">' + gros + '</div><div class="petit">' + petit + '</div></div>' +
+    '<div class="corps">' +
+      '<div><span class="badge t-' + e.type + '">' + nomType + '</span>' +
+        (nomStatut ? '<span class="badge s-' + e.statut + '">' + nomStatut + '</span>' : '') + '</div>' +
+      '<div class="titre">' + esc(e.titre) + '</div>' +
+      '<div class="dates">' + dates + '</div>' +
+      (e.detail ? '<div class="detail">' + esc(e.detail) + '</div>' : '') +
+      (meta ? '<div class="meta">' + meta + '</div>' : '') +
+    '</div></div>';
+}
+
+function section(titre, liste, alerte, vide){
+  if (!liste.length && !vide) return '';
+  return '<div class="section' + (alerte ? ' alerte' : '') + '">' + titre + ' <span class="n">' + liste.length + '</span></div>' +
+    (liste.length ? '<div class="grille">' + liste.map(carte).join('') + '</div>' : '<div class="vide">' + vide + '</div>');
+}
+
+function dessiner(){
+  const g = classer();
+  $('cal').innerHTML =
+    section('Date passée — fait ou à replanifier?', g.retard, true) +
+    section('Aujourd’hui', g.auj, false, 'Rien aujourd’hui.') +
+    section('En cours', g.cours) +
+    section('Cette semaine', g.semaine, false, 'Rien d’autre cette semaine.') +
+    section('Semaine prochaine', g.prochaine, false, 'Rien la semaine prochaine.') +
+    section('Plus tard', g.plusTard) +
+    section('À planifier (pas de date)', g.sansDate, true) +
+    section('Faits récemment', g.fait);
+  if (donnees.peut_modifier){
+    document.querySelectorAll('.carte').forEach(el => {
+      el.onclick = () => ouvrir(donnees.evenements.find(x => x.id === el.dataset.id));
+    });
+  }
+}
+
+document.querySelectorAll('#filtres .puce').forEach(p => p.onclick = () => {
+  filtre = p.dataset.f;
+  document.querySelectorAll('#filtres .puce').forEach(x => x.classList.toggle('actif', x === p));
+  dessiner();
+});
+$('btn-rafraichir').onclick = () => charger();
+
+// ---- édition (Christian seulement) ----
+function choisirType(v){
+  typeChoisi = v;
+  document.querySelectorAll('#ed-type button').forEach(b => b.classList.toggle('actif', b.dataset.v === v));
+}
+document.querySelectorAll('#ed-type button').forEach(b => b.onclick = () => choisirType(b.dataset.v));
+
+async function ouvrir(e){
+  enEdition = e || null;
+  $('ed-titre-boite').textContent = e ? 'Modifier' : 'Ajouter au calendrier';
+  $('ed-titre').value = e ? e.titre : '';
+  choisirType(e ? e.type : 'installation');
+  $('ed-debut').value = e && e.date_debut ? e.date_debut : '';
+  $('ed-fin').value = e && e.date_fin ? e.date_fin : '';
+  $('ed-statut').value = e ? e.statut : 'confirme';
+  $('ed-equipe').value = e && e.equipe ? e.equipe : '';
+  $('ed-detail').value = e && e.detail ? e.detail : '';
+  $('ed-source').value = e && e.source ? e.source : '';
+  $('ed-raison').value = '';
+  $('ed-histo').innerHTML = '';
+  $('overlay-edit').classList.add('on');
+  if (e){
+    try{
+      const h = await api('/api/installations/historique', { id: e.id });
+      const nom = {confirme:'confirmé', a_confirmer:'à confirmer', en_cours:'en cours', a_replanifier:'à replanifier', fait:'fait', annule:'annulé'};
+      const dt = s => s ? fmt(jour(s)) : 'aucune';
+      $('ed-histo').innerHTML = '<div><b>Historique</b></div>' + h.map(x =>
+        '<div>' + new Date(x.modifie_le).toLocaleDateString('fr-CA') + ' — ' +
+        (x.ancien_debut || x.ancien_statut ? dt(x.ancien_debut) + ' (' + (nom[x.ancien_statut]||'') + ') → ' : '') +
+        '<b>' + dt(x.nouveau_debut) + '</b> (' + (nom[x.nouveau_statut]||'') + ')' +
+        (x.raison ? ' · ' + esc(x.raison) : '') + (x.modifie_par ? ' · ' + esc(x.modifie_par) : '') + '</div>').join('');
+    }catch(err){ /* l'historique est un plus : on n'empêche pas la modification */ }
+  }
+}
+$('btn-ajouter').onclick = () => ouvrir(null);
+$('ed-annuler').onclick = () => $('overlay-edit').classList.remove('on');
+
+$('ed-sauver').onclick = async () => {
+  const titre = $('ed-titre').value.trim();
+  const debut = $('ed-debut').value || null, fin = $('ed-fin').value || null;
+  const statut = $('ed-statut').value;
+  if (!titre){ alert('Le projet est requis.'); return; }
+  if (fin && !debut){ alert('Mets une date de début.'); return; }
+  if (debut && fin && fin < debut){ alert('La date de fin est avant la date de début.'); return; }
+  if (!debut && (statut === 'confirme' || statut === 'en_cours')){
+    if (!confirm('Aucune date de début. Sauvegarder quand même?')) return;
+  }
+  const btn = $('ed-sauver'); btn.disabled = true;
+  try{
+    await api('/api/installations/definir', {
+      code: codeModif, p_id: enEdition ? enEdition.id : null, p_titre: titre,
+      p_detail: $('ed-detail').value, p_type: typeChoisi, p_date_debut: debut, p_date_fin: fin,
+      p_statut: statut, p_equipe: $('ed-equipe').value, p_source: $('ed-source').value,
+      p_raison: $('ed-raison').value });
+    $('overlay-edit').classList.remove('on');
+    await charger();
+    msg('msg-cal', 'Calendrier mis à jour.', 'ok');
+  }catch(e){
+    alert('Erreur : ' + e.message);
+  }finally{ btn.disabled = false; }
+};
+
+// Rafraîchit tout seul aux 5 minutes (écran du rack, TV d'expédition)
+setInterval(() => { if (!$('overlay-edit').classList.contains('on')) charger(); }, 5 * 60 * 1000);
+
+charger();
+</script>
+</body>
+</html>
