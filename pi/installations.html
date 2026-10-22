@@ -183,11 +183,12 @@ function ecart(a, b){ return Math.round((a - b) / 86400000); }
 const JOURS = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
 const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
 function fmt(d){ return JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()]; }
-// Jours ouvrables (lundi au vendredi) entre aujourd'hui (exclu) et la date (incluse).
+// Jours de production de l'usine (lundi au jeudi ; le vendredi = temps supplémentaire)
+// entre aujourd'hui (exclu) et la date (incluse).
 function ouvrables(auj, d){
   if (d <= auj) return ecart(d, auj);
   let n = 0; const x = new Date(auj);
-  while (x < d){ x.setDate(x.getDate() + 1); const k = x.getDay(); if (k !== 0 && k !== 6) n++; }
+  while (x < d){ x.setDate(x.getDate() + 1); const k = x.getDay(); if (k >= 1 && k <= 4) n++; }
   return n;
 }
 function lundi(d){ const x = new Date(d); const k = (x.getDay() + 6) % 7; x.setDate(x.getDate() - k); return x; }
@@ -266,7 +267,7 @@ function carte(e){
     else {
       cls = j <= 1 ? 'u1' : j <= 3 ? 'u3' : j <= 7 ? 'u7' : '';
       gros = e._jc === 1 ? 'DEMAIN' : 'J-' + j;
-      petit = e._jc === 1 ? '' : (j === 1 ? 'jour ouvr.' : 'jours ouvr.');
+      petit = e._jc === 1 ? '' : (j === 1 ? 'jour usine' : 'jours usine');
     }
   } else { gros = '?'; petit = 'sans date'; }
 
